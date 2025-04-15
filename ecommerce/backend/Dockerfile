@@ -1,7 +1,7 @@
 FROM node:latest AS backend-build
 WORKDIR /usr/src/app
 COPY ./ ./backend/
-RUN cd ecommerce && npm install
+
 
 FROM node:latest
 WORKDIR /usr/src/app/
