@@ -12,7 +12,7 @@ services:
 
   api:
     build:
-      context: ./nodeapi
+      context: ./backend
     ports:
       - "5000:5000"
     restart: always
