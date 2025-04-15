@@ -7,19 +7,6 @@ services:
     ports:
       - "3000:3000"
     container_name: frontend
-    depends_on:
-      - api
-
-  api:
-    build:
-      context: ./backend
-    ports:
-      - "4000:4000"
-    restart: always
-    container_name: api
-    depends_on:
-      - nginx
-      - mongo-express
 
   nginx:
     restart: always
