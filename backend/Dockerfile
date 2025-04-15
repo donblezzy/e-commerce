@@ -1,7 +1,7 @@
 FROM node AS backend-build
 WORKDIR /usr/src/app
 COPY ./ ./backend/
-RUN cd backend && npm install
+RUN npm install
 
 FROM node
 WORKDIR /usr/src/app/
