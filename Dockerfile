@@ -6,7 +6,7 @@ RUN cd frontend && npm install && npm run build
 FROM node AS server-build
 WORKDIR /usr/src/app
 COPY backend/ ./backend/
-RUN cd backend && npm install
+RUN npm install
 
 FROM node
 WORKDIR /usr/src/app/
