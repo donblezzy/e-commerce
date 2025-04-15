@@ -1,9 +1,9 @@
-FROM node AS backend-build
+FROM node:latest AS backend-build
 WORKDIR /usr/src/app
 COPY ./ ./backend/
-RUN npm install
+RUN cd backend && npm install
 
-FROM node
+FROM node:latest
 WORKDIR /usr/src/app/
 COPY --from=backend-build /usr/src/app/backend/ ./
 RUN ls
