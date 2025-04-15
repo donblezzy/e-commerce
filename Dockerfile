@@ -1,14 +1,14 @@
-FROM node AS ui-build
+FROM node:latest AS ui-build
 WORKDIR /usr/src/app
 COPY frontend/ ./frontend/
 RUN cd frontend && npm install && npm run build
 
-FROM node AS server-build
+FROM node:latest AS server-build
 WORKDIR /usr/src/app
 COPY backend/ ./backend/
-RUN npm install
+RUN cd backend && npm install
 
-FROM node
+FROM node:latest
 WORKDIR /usr/src/app/
 COPY --from=server-build /usr/src/app/backend/ ./
 COPY --from=ui-build /usr/src/app/frontend/dist ./frontend/dist

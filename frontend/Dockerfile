@@ -1,4 +1,4 @@
-FROM node AS web-build
+FROM node:latest AS web-build
 WORKDIR /usr/src/app
 COPY ./ ./frontend
 RUN cd frontend && npm install && npm run build --prod
