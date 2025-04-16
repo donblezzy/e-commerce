@@ -1,14 +1,16 @@
-FROM node:latest AS web-build
-WORKDIR /usr/src/app
-COPY ./ ./frontend
-RUN cd frontend && npm install && npm run build --prod
+# Stage 1: Build
+FROM node:20-alpine as build
 
-# Use official nginx image as the base image
-FROM nginx:latest
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . .
+RUN npm run build
 
-# Copy the build output to replace the default nginx contents.
-COPY --from=web-build /usr/src/app/frontend/build /usr/share/nginx/html
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Stage 2: Serve
+FROM nginx:alpine
 
-# Expose port 4200
-EXPOSE 3000
+COPY --from=build /app/build /usr/share/nginx/html
+
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]

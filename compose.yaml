@@ -1,41 +1,31 @@
-version: "3.8"
+version: '3.8'
 
 services:
-  frontend:
-    build:
-      context: ./frontend
+  mongo:
+    image: mongo
+    container_name: mongo
     ports:
-      - "3000:3000"
-    container_name: frontend
-    depends_on:
-      - api
-
-  api:
-    build:
-      context: ./backend
-    ports:
-      - "5000:5000"
-    restart: always
-    container_name: api
-    depends_on:
-      - nginx
-      - mongo-express
-
-  nginx:
-    restart: always
-    image: nginx:latest
-    container_name: nginx
+      - "27017:27017"
     volumes:
-      - "./nginx/default.conf:/etc/nginx/conf.d/default.conf"
-    ports:
-      - "80:80"
+      - mongo-data:/data/db
 
-  mongo-express:
-    image: mongo-express
+  backend:
+    build: ./backend
+    container_name: backend
     ports:
-      - 8081:8081
+      - "4000:4000"
     environment:
-      ME_CONFIG_MONGODB_ADMINUSERNAME: donblezzy
-      ME_CONFIG_MONGODB_ADMINPASSWORD: Myschool12345
-      ME_CONFIG_MONGODB_URL: mongodb+srv://donblezzy:Myschool12345@shopit.z1pjnwt.mongodb.net/ShopIT?retryWrites=true&w=majority&appName=ShopIT
-      ME_CONFIG_BASICAUTH: false
+      - MONGO_URL=mongodb://mongo:27017/mongodb+srv://donblezzy:Myschool12345@shopit.z1pjnwt.mongodb.net/ShopIT?retryWrites=true&w=majority&appName=ShopIT
+    depends_on:
+      - mongo
+
+  frontend:
+    build: ./frontend
+    container_name: frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+
+volumes:
+  mongo-data:

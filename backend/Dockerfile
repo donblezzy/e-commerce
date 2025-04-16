@@ -1,14 +1,16 @@
-FROM node:latest AS backend-build
-WORKDIR /usr/src/app
-COPY package*.json .
-COPY ./ ./backend/
+# Stage 1: Build dependencies
+FROM node:20-alpine as build
+
+WORKDIR /app
+COPY package*.json ./
 RUN npm install
 
+# Stage 2: Copy source and run
+FROM node:20-alpine
 
-FROM node:latest
-WORKDIR /usr/src/app/
-COPY --from=backend-build /usr/src/app/backend/ ./
-RUN ls
+WORKDIR /app
+COPY --from=build /app/node_modules ./node_modules
+COPY . .
+
 EXPOSE 4000
-CMD ["/bin/sh", "-c", "cd /usr/src/app/ && npm start"]
-# Test3
+CMD ["node", "server.js"]
