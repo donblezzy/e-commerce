@@ -1,6 +1,8 @@
 FROM node:latest AS backend-build
 WORKDIR /usr/src/app
+COPY package*.json .
 COPY ./ ./backend/
+RUN npm install
 
 
 FROM node:latest

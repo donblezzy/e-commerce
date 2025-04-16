@@ -5,13 +5,14 @@ RUN cd frontend && npm install && npm run build
 
 FROM node:latest AS server-build
 WORKDIR /usr/src/app
+COPY package*.json .
 COPY backend/ ./backend/
-RUN cd ecommerce && npm install
+RUN npm install
 
 FROM node:latest
 WORKDIR /usr/src/app/
 COPY --from=server-build /usr/src/app/backend/ ./
-COPY --from=ui-build /usr/src/app/frontend/dist ./frontend/dist
+COPY --from=ui-build /usr/src/app/frontend/build ./frontend/build
 RUN ls
 EXPOSE 3000
 EXPOSE 4000
