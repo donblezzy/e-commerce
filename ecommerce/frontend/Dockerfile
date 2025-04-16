@@ -7,7 +7,7 @@ RUN cd frontend && npm install && npm run build --prod
 FROM nginx:latest
 
 # Copy the build output to replace the default nginx contents.
-COPY --from=web-build /usr/src/app/frontend/dist/frontend/ /usr/share/nginx/html
+COPY --from=web-build /usr/src/app/frontend/build /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Expose port 4200
