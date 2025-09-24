@@ -1,4 +1,4 @@
-version: '3.8'
+version: '3.9'
 
 services:
   mongo:
@@ -16,6 +16,7 @@ services:
     ports:
       - "4000:4000"
     environment:
+      - NODE_ENV=PRODUCTION
       - MONGO_URL=mongodb://mongo:27017/mongodb+srv://donblezzy:Myschool12345@shopit.z1pjnwt.mongodb.net/ShopIT?retryWrites=true&w=majority&appName=ShopIT
     depends_on:
       - mongo
