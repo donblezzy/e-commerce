@@ -1,4 +1,4 @@
-# Use official Node image
+# Use Node.js base image
 FROM node:18
 
 # Set working directory
@@ -10,9 +10,8 @@ RUN npm install
 
 COPY . .
 
-# Expose backend port (e.g., 4000)
+# Expose backend port
 EXPOSE 4000
 
-# Increase memory to 2GB using --max-old-space-size
-CMD ["node", "--max-old-space-size=2048", "server.js"]
-
+# Start server
+CMD ["node", "server.js"]

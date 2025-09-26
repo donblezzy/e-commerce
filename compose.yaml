@@ -1,33 +1,18 @@
 version: '3.8'
 
 services:
-  mongo:
-    image: mongo
-    container_name: mongo
-    restart: always
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongo-data:/data/db
-
-  backend:
-    build: ./backend
-    container_name: backend
-    ports:
-      - "4000:4000"
-    environment:
-      - NODE_ENV=PRODUCTION
-      - MONGO_URL=mongodb://mongo:27017/mongodb+srv://donblezzy:Myschool12345@shopit.z1pjnwt.mongodb.net/ShopIT?retryWrites=true&w=majority&appName=ShopIT
-    depends_on:
-      - mongo
-
   frontend:
     build: ./frontend
-    container_name: frontend
     ports:
-      - "3000:80"
+      - "3000:80"  # host:container
     depends_on:
       - backend
 
-volumes:
-  mongo-data:
+  backend:
+    build: ./backend
+    ports:
+      - "4000:4000"
+    environment:
+      - MONGO_URI=mongodb+srv://donblezzy:Myschool12345@shopit.z1pjnwt.mongodb.net/ShopIT?retryWrites=true&w=majority&appName=ShopIT
+    depends_on:
+      - frontend
