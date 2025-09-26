@@ -13,6 +13,6 @@ services:
     ports:
       - "4000:4000"
     environment:
-      - MONGO_URI=mongodb+srv://donblezzy:Myschool12345@shopit.z1pjnwt.mongodb.net/ShopIT?retryWrites=true&w=majority&appName=ShopIT
+      - MONGO_URI=${MONGO_URI}
     depends_on:
       - frontend
