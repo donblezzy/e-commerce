@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   frontend:
     build: ./frontend
@@ -14,5 +12,3 @@ services:
       - "4000:4000"
     environment:
       - MONGO_URI=${MONGO_URI}
-    depends_on:
-      - frontend
