@@ -3,8 +3,6 @@ services:
     build: ./frontend
     ports:
       - "3000:80"  # host:container
-    depends_on:
-      - backend
 
   backend:
     build: ./backend
@@ -12,3 +10,5 @@ services:
       - "4000:4000"
     environment:
       - MONGO_URI=${MONGO_URI}
+    depends_on:
+      - frontend
