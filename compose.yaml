@@ -1,9 +1,4 @@
 services:
-  frontend:
-    build: ./frontend
-    ports:
-      - "3000:80"  # host:container
-
   backend:
     build: ./backend
     ports:
@@ -12,3 +7,8 @@ services:
       - MONGO_URI=${MONGO_URI}
     depends_on:
       - frontend
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:80"  # host:container

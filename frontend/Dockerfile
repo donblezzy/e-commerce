@@ -1,4 +1,4 @@
-FROM node:18
+FROM node:18 as build
 
 WORKDIR /app
 
@@ -11,7 +11,8 @@ RUN npm run build
 
 # Use Nginx to serve frontend
 FROM nginx:alpine
-COPY --from=0 /app/build /usr/share/nginx/html
+
+COPY --from=build /app/build /usr/share/nginx/html
 
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
