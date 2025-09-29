@@ -2,14 +2,14 @@ services:
   backend:
     build: ./backend
     ports:
-      - '4000:4000'
+      - "4000:4000"
     environment:
       - PORT=4000
-      - MONGO_URI=${MONGO_URI}
-    env_file:
-      - .env
+      - MONGO_URI=mongodb+srv://donblezzy:Myschool12345@shopit.z1pjnwt.mongodb.net/ShopIT?retryWrites=true&w=majority&appName=ShopIT
+    depends_on:
+      - frontend
 
   frontend:
     build: ./frontend
     ports:
-      - '3000:80'
+      - "3000:80"
