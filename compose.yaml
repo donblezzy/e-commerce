@@ -1,8 +1,17 @@
 services:
+  mongo:
+    image: mongo
+    ports:
+      - '27017:27017'
+    volumes:
+      - mongo-data:/data/db
+
   backend:
     build: ./backend
     ports:
       - '4000:4000'
+    depends_on:
+      - mongo
     environment:
       - PORT=4000
       - MONGO_URI=${MONGO_URI}
@@ -12,4 +21,7 @@ services:
   frontend:
     build: ./frontend
     ports:
-      - '3000:80'  # React apps usually run on 3000
+      - '3000:80'
+
+volumes:
+  mongo-data:
