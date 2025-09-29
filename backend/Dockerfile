@@ -1,18 +1,17 @@
-# Use Node.js base image
-FROM node:18-slim
+FROM node:18
 
+# Create app directory
+WORKDIR /usr/src/app
 
-# Set working directory
-WORKDIR /app
-
-# Copy files
+# Install app dependencies
 COPY package*.json ./
 RUN npm install
 
+# Bundle app source
 COPY . .
 
-# Expose backend port
-EXPOSE 4000
+# Expose port
+EXPOSE 5000
 
-# Start server
+# Start app
 CMD ["node", "server.js"]
