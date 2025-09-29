@@ -5,7 +5,9 @@ services:
       - "4000:4000"
     environment:
       - PORT=4000
-      - MONGO_URI=mongodb+srv://donblezzy:Myschool12345@shopit.z1pjnwt.mongodb.net/ShopIT?retryWrites=true&w=majority&appName=ShopIT
+      - MONGO_URI=${MONGO_URI}
+    env_file:
+      - .env
     depends_on:
       - frontend
 
