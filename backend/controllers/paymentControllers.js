@@ -1,30 +1,35 @@
+// backend/controllers/paymentController.js
 import catchAsyncError from "../middlewares/catchAsyncError.js";
-import Order from '../models/order.js'
+import Order from "../models/order.js";
 import Stripe from "stripe";
 
-const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
+// Function to safely initialize Stripe only when needed
+const getStripe = () => {
+  if (!process.env.STRIPE_SECRET_KEY) {
+    throw new Error("STRIPE_SECRET_KEY is not defined in environment variables!");
+  }
+  return new Stripe(process.env.STRIPE_SECRET_KEY);
+};
 
-// Create stripe checkout session => /api/payment/checkout_session
+// Create Stripe checkout session => /api/payment/checkout_session
 export const stripeCheckoutSession = catchAsyncError(async (req, res, next) => {
-  const body = req?.body;
-  const line_items = body?.orderItems?.map((item) => {
-    return {
-        price_data: {
-            currency: "usd",
-            product_data: {
-                name: item?.name,
-                images: [item?.image],
-                metadata: { productId: item?.product },
-            },
-            // because we want it to be in dollars
-            unit_amount: item?.price * 100
-        },
-        tax_rates: ["txr_1PIWD605HB41KwPhWwtRnZGB"],
-        quantity: item?.quantity
-    };
-  });
+  const stripe = getStripe(); // Initialize Stripe here
 
-  const shippingInfo = body?.shippingInfo
+  const body = req?.body;
+
+  const line_items = body?.orderItems?.map((item) => ({
+    price_data: {
+      currency: "usd",
+      product_data: {
+        name: item?.name,
+        images: [item?.image],
+        metadata: { productId: item?.product },
+      },
+      unit_amount: item?.price * 100, // Stripe expects amount in cents
+    },
+    tax_rates: ["txr_1PIWD605HB41KwPhWwtRnZGB"], // Your tax rate
+    quantity: item?.quantity,
+  }));
 
   const shipping_rate =
     body?.itemsPrice >= 200
@@ -38,62 +43,56 @@ export const stripeCheckoutSession = catchAsyncError(async (req, res, next) => {
     customer_email: req?.user?.email,
     client_reference_id: req?.user?._id?.toString(),
     mode: "payment",
-    metadata: { ...shippingInfo, itemsPrice: body?.itemsPrice},
-    shipping_options: [
-      {
-        shipping_rate,
-      },
-    ],
+    metadata: { ...body?.shippingInfo, itemsPrice: body?.itemsPrice },
+    shipping_options: [{ shipping_rate }],
     line_items,
   });
 
-  // console.log(session);
-  res.status(200).json({
-    url: session.url
-  })
+  res.status(200).json({ url: session.url });
 });
 
-const getOrderItems = async (line_items) => {
-  return new Promise((resolve, reject) => {
-    let cartItems = []
+// Helper function to reconstruct order items from Stripe
+const getOrderItems = async (stripe, line_items) => {
+  const cartItems = await Promise.all(
+    line_items?.data?.map(async (item) => {
+      const product = await stripe.products.retrieve(item.price.product);
+      const productId = product.metadata.productId;
 
-    line_items?.data?.forEach(async (item) => {
-      const product = await stripe.products.retrieve(item.price.product)
-      const productId = product.metadata.productId
-
-      cartItems.push({
+      return {
         product: productId,
         name: product.name,
         price: item.price.unit_amount_decimal / 100,
         quantity: item.quantity,
-        image: product.images[0]
-      })
-
-      if (cartItems.length === line_items?.data?.length) {
-        resolve(cartItems)
-      }
+        image: product.images[0],
+      };
     })
-  })
-}
+  );
 
-// Create new order after payment => /api/payment/webhook
+  return cartItems;
+};
+
+// Stripe webhook handler => /api/payment/webhook
 export const stripeWebhook = catchAsyncError(async (req, res, next) => {
+  const stripe = getStripe(); // Initialize Stripe here
+
   try {
-    const signature = req.headers["stripe-signature"]
+    const signature = req.headers["stripe-signature"];
+    const event = stripe.webhooks.constructEvent(
+      req.rawBody,
+      signature,
+      process.env.STRIPE_WEBHOOK_SECRET
+    );
 
-    const event = stripe.webhooks.constructEvent(req.rawBody, signature, process.env.STRIPE_WEBHOOK_SECRET)
     if (event.type === "checkout.session.completed") {
+      const session = event.data.object;
+      const line_items = await stripe.checkout.sessions.listLineItems(session.id);
+      const orderItems = await getOrderItems(stripe, line_items);
 
-      const session = event.data.object
-
-      const line_items = await stripe.checkout.sessions.listLineItems(session.id)
-      const orderItems = await getOrderItems(line_items)
-      const user = session.client_reference_id
-
-      const totalAmount = session.amount_total / 100
-      const taxAmount = session.total_details.amount_tax / 100
-      const shippingAmount = session.total_details.amount_shipping
-      const itemsPrice = session.metadata.itemsPrice
+      const user = session.client_reference_id;
+      const totalAmount = session.amount_total / 100;
+      const taxAmount = session.total_details.amount_tax / 100;
+      const shippingAmount = session.total_details.amount_shipping;
+      const itemsPrice = session.metadata.itemsPrice;
 
       const shippingInfo = {
         address: session.metadata.address,
@@ -101,12 +100,12 @@ export const stripeWebhook = catchAsyncError(async (req, res, next) => {
         phoneNo: session.metadata.phoneNo,
         zipCode: session.metadata.zipCode,
         country: session.metadata.country,
-      }
+      };
 
       const paymentInfo = {
         id: session.payment_intent,
-        status: session.payment_status
-      }
+        status: session.payment_status,
+      };
 
       const orderData = {
         shippingInfo,
@@ -117,14 +116,14 @@ export const stripeWebhook = catchAsyncError(async (req, res, next) => {
         totalAmount,
         paymentInfo,
         paymentMethod: "Card",
-        user
-      }
+        user,
+      };
 
-      await Order.create(orderData)
-
-      res.status(200).json({ success: true })
+      await Order.create(orderData);
+      res.status(200).json({ success: true });
     }
   } catch (error) {
-    console.log("Error =>", error);
+    console.error("Stripe Webhook Error:", error);
+    res.status(400).send(`Webhook Error: ${error.message}`);
   }
-})
+});

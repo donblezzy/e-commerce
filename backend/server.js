@@ -1,5 +1,16 @@
-import express from "express";
 import dotenv from "dotenv";
+import path from "path"
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+
+dotenv.config({ path: path.join(__dirname, ".env") });
+
+
+
+import express from "express";
+import cors from "cors";
 import cookieParser from "cookie-parser";
 import productRoutes from './routes/products.js'
 import authRoutes from './routes/auth.js'
@@ -8,16 +19,15 @@ import paymentRoutes from './routes/payment.js'
 import { connectDatabase } from "./config/dbConnect.js";
 import errorMiddleware from "./middlewares/error.js";
 
-import path from "path"
-import { fileURLToPath } from "url";
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
 
-
-dotenv.config({ path: "backend/config/config.env" });
 const app = express();
 // Connecting Database
 connectDatabase()
+
+app.use(cors({
+  origin: "http://localhost:3000", // your frontend URL
+  credentials: true
+}));
 
 app.use(express.json({ limit: "10mb", verify: (req, res, buf) => {
     req.rawBody = buf.toString()
