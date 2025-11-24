@@ -1,38 +1,16 @@
-# -----------------------------
-# 1. Build Stage
-# -----------------------------
-FROM node:18-alpine AS builder
+FROM node:18-alpine
 
 WORKDIR /app
 
-# Install dependencies first (better caching)
-COPY package*.json ./
-RUN npm install --production=false
-
-# Copy source code
-COPY . .
-
-# Build (optional — remove if not using a build step, e.g., pure backend)
-# RUN npm run build
-
-# -----------------------------
-# 2. Runtime Stage
-# -----------------------------
-FROM node:18-alpine AS runner
-
-WORKDIR /app
-
-# Copy only necessary artifacts
+# Copy package files and install dependencies
 COPY package*.json ./
 RUN npm install --production
 
-# Copy built app (remove "dist" if not using a build step)
-COPY --from=builder /app ./
+# Copy backend source code
+COPY . .
 
-# Set a non-root user for security
-USER node
-
+# Expose backend port
 EXPOSE 5000
 
-# Start the backend
+# Start the app
 CMD ["npm", "start"]

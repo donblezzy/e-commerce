@@ -1,8 +1,7 @@
-version: "3.9"
 
 services:
   # -------------------------
-  # Node.js Backend
+  # Node.js Backend (Node 18)
   # -------------------------
   backend:
     build:
@@ -13,7 +12,7 @@ services:
     working_dir: /app
     environment:
       PORT: 5000
-      # Replace with your actual Atlas URI
+      # Replace with your MongoDB Atlas connection string
       MONGO_URI: mongodb+srv://donblezzy:Myschool12345@shopit.z1pjnwt.mongodb.net/ShopIT?retryWrites=true&w=majority&appName=ShopIT
     ports:
       - "5000:5000"
@@ -21,7 +20,7 @@ services:
       - app-network
 
   # -------------------------
-  # React Frontend
+  # React Frontend (Node 18 build + Nginx)
   # -------------------------
   frontend:
     build:
@@ -29,15 +28,8 @@ services:
       dockerfile: Dockerfile
     container_name: frontend
     restart: always
-    stdin_open: true
-    environment:
-      # For Vite:
-      VITE_API_URL: "http://localhost:5000"
-
-      # For CRA:
-      REACT_APP_API_URL: "http://localhost:5000"
     ports:
-      - "3000:80"
+      - "3000:80"   # Nginx serves on port 80 internally
     depends_on:
       - backend
     networks:

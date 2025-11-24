@@ -1,27 +1,28 @@
-# ---- Build Stage ----
+# Stage 1: Build stage using Node 18
 FROM node:18-alpine AS build
 
-# Set working directory
 WORKDIR /app
 
 # Install dependencies
 COPY package*.json ./
 RUN npm install
 
-# Copy the rest of the app and build it
+# Copy source code
 COPY . .
+
+# Build frontend
 RUN npm run build
 
-# ---- Production Stage ----
-FROM nginx:latest
+# Stage 2: Serve with Nginx
+FROM nginx:alpine
 
-# Remove default nginx website
+# Remove default Nginx files
 RUN rm -rf /usr/share/nginx/html/*
 
-# Copy built frontend app from previous stage
-COPY --from=build /app/dist /usr/share/nginx/html
+# Copy build output from previous stage
+COPY --from=build /app/build /usr/share/nginx/html
 
-# Expose port
+# Expose port 80
 EXPOSE 80
 
 # Start Nginx
