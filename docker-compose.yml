@@ -13,11 +13,11 @@ services:
     environment:
       PORT: 5000
       # Replace with your MongoDB Atlas connection string
-      MONGO_URI: mongodb+srv://donblezzy:Myschool12345@shopit.z1pjnwt.mongodb.net/ShopIT?retryWrites=true&w=majority&appName=ShopIT
+      MONGO_URI: "${DB_URI}"
     ports:
       - "5000:5000"
-    networks:
-      - app-network
+    depends_on:
+      - frontend
 
   # -------------------------
   # React Frontend (Node 18 build + Nginx)
@@ -32,12 +32,3 @@ services:
       - "3000:80"   # Nginx serves on port 80 internally
     depends_on:
       - backend
-    networks:
-      - app-network
-
-# -------------------------
-# Internal network
-# -------------------------
-networks:
-  app-network:
-    driver: bridge
