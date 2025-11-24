@@ -27,6 +27,6 @@ services:
     container_name: frontend
     restart: always
     ports:
-      - "3000:80"   # Nginx serves on port 80 internally
+      - "3000:3000"   # Nginx serves on port 80 internally
     depends_on:
       - backend
