@@ -12,5 +12,5 @@ COPY . .
 # Expose backend port
 EXPOSE 5000
 
-# Start the app
-CMD ["npm", "start"]
+# Start backend
+CMD ["node", "backend/server.js"]
