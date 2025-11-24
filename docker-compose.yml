@@ -1,0 +1,51 @@
+version: "3.9"
+
+services:
+  # -------------------------
+  # Node.js Backend
+  # -------------------------
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: backend
+    restart: always
+    working_dir: /app
+    environment:
+      PORT: 5000
+      # Replace with your actual Atlas URI
+      MONGO_URI: mongodb+srv://donblezzy:Myschool12345@shopit.z1pjnwt.mongodb.net/ShopIT?retryWrites=true&w=majority&appName=ShopIT
+    ports:
+      - "5000:5000"
+    networks:
+      - app-network
+
+  # -------------------------
+  # React Frontend
+  # -------------------------
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: frontend
+    restart: always
+    stdin_open: true
+    environment:
+      # For Vite:
+      VITE_API_URL: "http://localhost:5000"
+
+      # For CRA:
+      REACT_APP_API_URL: "http://localhost:5000"
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - app-network
+
+# -------------------------
+# Internal network
+# -------------------------
+networks:
+  app-network:
+    driver: bridge
