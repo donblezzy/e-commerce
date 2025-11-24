@@ -16,8 +16,6 @@ services:
       DB_URI: ${DB_URI}
     ports:
       - "5000:5000"
-    depends_on:
-      - frontend
 
   # -------------------------
   # React Frontend (Node 18 build + Nginx)
