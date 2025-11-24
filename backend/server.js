@@ -7,8 +7,6 @@ const __dirname = path.dirname(__filename)
 
 dotenv.config({ path: path.join(__dirname, ".env") });
 
-
-
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
@@ -24,10 +22,7 @@ const app = express();
 // Connecting Database
 connectDatabase()
 
-app.use(cors({
-  origin: "http://localhost:3000", // your frontend URL
-  credentials: true
-}));
+app.use(cors({origin: "http://localhost:5000",  credentials: true}));
 
 app.use(express.json({ limit: "10mb", verify: (req, res, buf) => {
     req.rawBody = buf.toString()
