@@ -1,15 +1,13 @@
-# Stage 1: Build React app
-FROM node:18-alpine AS build
-
+# Stage 1 — Build the React App
+FROM node:18 AS build
 WORKDIR /app
 COPY package*.json ./
 RUN npm install
 COPY . .
 RUN npm run build
 
-# Stage 2: Serve with Nginx
+# Stage 2 — Serve with Nginx
 FROM nginx:alpine
-RUN rm -rf /usr/share/nginx/html/*
 COPY --from=build /app/build /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
