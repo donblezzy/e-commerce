@@ -3,6 +3,7 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
+    image: donblezzy123/e-commerce-backend
     container_name: backend
     restart: always
     env_file:
@@ -16,6 +17,7 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+    image: donblezzy123/e-commerce-frontend
     container_name: frontend
     restart: always
     env_file:
